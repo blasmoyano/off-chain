@@ -1,0 +1,8 @@
+[flake8]
+per-file-ignores =
+    manage.py:F401,E402
+exclude=
+    venv
+    authentication/migrations
+    balance/migrations
+max-line-length = 100
