@@ -10,6 +10,17 @@ API para mantener actualizado el balance crypto de un usuario a partir de evento
 ## Deploy
 
 ### [Docker]()
+
+Se debe generar un .env en [path](/off_chain/settings) similar a:
+
+```
+DEBUG=FALSE
+SECRET_KEY=secret_key
+ALLOWED_HOSTS=127.0.0.1,localhost,0.0.0.0
+PRIVATE_KEY=PRIVATE_KEY
+```
+puede tomar de ejemplo [example](/off_chain/settings/.env_desa)
+
 ```sh
 $ docker-compose build
 $ docker-compose up
