@@ -40,6 +40,7 @@ class Balance(models.Model):
         Ticker, on_delete=models.CASCADE, verbose_name="ticker ID"
     )
     amount = models.FloatField(verbose_name="amount")
+    hash = models.TextField(verbose_name="hash")
 
     def __str__(self):
         return f"{self.user.username}_{self.ticker}"
@@ -58,6 +59,7 @@ class BalanceEntry(models.Model):
     balance = models.ForeignKey(
         Balance, on_delete=models.CASCADE, verbose_name="balance ID"
     )
+    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="user ID")
     amount = models.FloatField(verbose_name="amount received")
     amount_before = models.FloatField(verbose_name="amount before")
     amount_after = models.FloatField(verbose_name="amount after")
