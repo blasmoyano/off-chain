@@ -6,6 +6,14 @@ USER = {
     "email": "user@example.com",
 }
 
+USER_TWO = {
+    "username": "user_two@example.com",
+    "last_name": "last_test_two",
+    "first_name": "first_test_two",
+    "password": "pass123",
+    "email": "user_two@example.com",
+}
+
 
 USER_ADMIN = {
     "username": "user_admin",

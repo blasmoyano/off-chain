@@ -66,19 +66,18 @@ class Operation:
             f"amount: {balance_user.amount}. user: {balance_user.user}. "
             f"ticker: {balance_user.ticker}. date: {balance_user.update_date}"
         )
-        balance_user.hash = CustomCryptography().encrypt(bytes(data))
+        balance_user.hash = CustomCryptography().encrypt(bytes(data, encoding="utf8"))
         hash_old = balance_user.hash
         balance_user.save()
         return amounts, balance_user, hash_old
 
     def burn(self, amount, balance_user):
-
-        if float(amount) > balance_user.amount:
+        if amount > balance_user.amount:
             raise AmountBaseClass("the amount is higher than what you have")
 
         amounts = {
             "before": balance_user.amount,
-            "after": balance_user.amount - float(amount),
+            "after": balance_user.amount - amount,
             "received": amount,
         }
         balance_user.amount = amounts["after"]
@@ -93,7 +92,8 @@ class Operation:
         return amounts, balance_user, hash_old
 
     def peer_to_peer(self, amount, balancer_sender, balancer_receiver):
-        amounts_sender, balance_sender = self.burn(amount, balancer_sender)
+
+        amounts_sender, balance_sender, _ = self.burn(amount, balancer_sender)
 
         message_sender = self.create_balance_entry(
             balance=balance_sender,
@@ -104,7 +104,7 @@ class Operation:
         if message_sender == Operation.FAIL:
             self.rollback(balance_sender, amounts_sender)
 
-        amounts_receiver, balancer_receiver = self.airdrop(amount, balancer_receiver)
+        amounts_receiver, balancer_receiver, _ = self.airdrop(amount, balancer_receiver)
 
         message_receiver = self.create_balance_entry(
             balance=balancer_receiver,

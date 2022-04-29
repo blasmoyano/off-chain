@@ -16,4 +16,4 @@ class CustomCryptography:
         return self.fernet.encrypt(data)
 
     def decrypt(self, token):
-        return self.fernet.decrypt(token)
+        return self.fernet.decrypt(token).decode()

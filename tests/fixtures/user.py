@@ -1,6 +1,6 @@
 import pytest
 from authentication.models import CustomUser
-from tests.data_config.authentication_config import USER, USER_ADMIN
+from tests.data_config.authentication_config import USER, USER_TWO, USER_ADMIN
 from django.urls import reverse
 
 
@@ -8,6 +8,12 @@ from django.urls import reverse
 def create_user():
     CustomUser.objects.create_user(**USER)
     return USER
+
+
+@pytest.fixture
+def create_user_two():
+    CustomUser.objects.create_user(**USER_TWO)
+    return USER_TWO
 
 
 @pytest.fixture()

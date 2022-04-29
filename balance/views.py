@@ -4,7 +4,6 @@ Author: Blas Moyano - Challenge Ripio - Copyright (C) 2022
 Functionality: Views
 """
 
-from django.core.exceptions import MultipleObjectsReturned
 from django.http import Http404
 from rest_framework.generics import ListCreateAPIView, ListAPIView, CreateAPIView
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
@@ -143,35 +142,37 @@ class Operations(CreateAPIView):
 
     def post(self, request, *args, **kwargs):
         operation_type = self.kwargs.get(self.lookup_url_kwarg)
-
         try:
-            balance_for_user = Balance.objects.select_for_update().get(
-                user=request.data["user"], ticker=request.data["ticker_id"]
-            )
-        except MultipleObjectsReturned:
+            ticker_id = int(request.data["ticker_id"])
+            amount = float(request.data["amount"])
+        except ValueError:
             return Response(
                 status=status.HTTP_404_NOT_FOUND,
-                data={"message": "the user has more than balancer"},
+                data={"message": "ticker or amount required integer"},
             )
-
+        try:
+            balance_for_user = Balance.objects.select_for_update().get(
+                user=request.data["user"], ticker=ticker_id
+            )
+        except Exception:
+            return Response(
+                status=status.HTTP_404_NOT_FOUND,
+                data={"message": "Balance matching query does not exist"},
+            )
         if not balance_for_user:
             return Response(
                 status=status.HTTP_404_NOT_FOUND,
                 data={"message": "balancer not exist for user"},
             )
-
         try:
             message = OPERATION.dispacher_operation(
-                operation_type=operation_type,
-                balance=balance_for_user,
-                amount=request.data["amount"],
+                operation_type=operation_type, balance=balance_for_user, amount=amount
             )
         except AmountBaseClass:
             return Response(
                 status=status.HTTP_404_NOT_FOUND,
                 data={"message": "The amount is higher than what you have"},
             )
-
         if OPERATION.SUCCESS == message:
             return Response(
                 status=status.HTTP_200_OK,
@@ -203,19 +204,26 @@ class PeerToPeer(CreateAPIView):
                 status=status.HTTP_404_NOT_FOUND,
                 data={"message": "users cannot be the same"},
             )
+        try:
+            ticker_id = int(request.data["ticker_id"])
+            amount = float(request.data["amount"])
+        except ValueError:
+            return Response(
+                status=status.HTTP_404_NOT_FOUND,
+                data={"message": "ticker or amount required integer"},
+            )
 
         try:
             balance_user_sender = Balance.objects.select_for_update().get(
-                user=request.data["user_sender_id"], ticker=request.data["ticker_id"]
+                user=request.data["user_sender_id"], ticker=ticker_id
             )
-
             balance_user_receiver = Balance.objects.select_for_update().get(
-                user=request.data["user_receiver_id"], ticker=request.data["ticker_id"]
+                user=request.data["user_receiver_id"], ticker=ticker_id
             )
-        except MultipleObjectsReturned:
+        except Exception:
             return Response(
                 status=status.HTTP_404_NOT_FOUND,
-                data={"message": "the user has more than balancer"},
+                data={"message": "Balance matching query does not exist"},
             )
 
         if not balance_user_sender or not balance_user_receiver:
@@ -225,7 +233,7 @@ class PeerToPeer(CreateAPIView):
             )
 
         message = OPERATION.peer_to_peer(
-            amount=request.data["amount"],
+            amount=amount,
             balancer_sender=balance_user_sender,
             balancer_receiver=balance_user_receiver,
         )
