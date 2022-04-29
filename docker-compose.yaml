@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  django_app:
+    build: .
+    container_name: off_chain
+    volumes:
+      - static_volume:/usr/src/off_chain/staticfiles
+    networks:
+      - nginx_network
+  nginx:
+    image: nginx:1.13
+    container_name: off_chain_nginx
+    ports:
+      - 8000:80
+    volumes:
+      - ./conf/nginx/conf.d:/etc/nginx/conf.d
+      - static_volume:/usr/src/off_chain/staticfiles
+    depends_on:
+      - django_app
+    networks:
+      - nginx_network
+
+networks:
+  nginx_network:
+    driver: bridge
+
+volumes:
+  static_volume:

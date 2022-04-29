@@ -1,9 +1,9 @@
 """
 Name: off chain
 Author: Blas Moyano - Challenge Ripio - Copyright (C) 2022
-Functionality: Tests
+Functionality: custom exception
 """
 
-# from django.test import TestCase
 
-# Create your tests here.
+class AmountBaseClass(Exception):
+    pass
